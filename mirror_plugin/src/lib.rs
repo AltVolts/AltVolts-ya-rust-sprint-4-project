@@ -47,7 +47,6 @@ extern "C" fn process_image(width: u32, height: u32, rgba_data: *mut u8, params:
         println!("vertical mirroring...");
         vertical_mirror(width, height, data);
     }
-
 }
 
 fn horizontal_mirror(width: usize, data: &mut [u8]) {
@@ -86,7 +85,8 @@ fn vertical_mirror(width: usize, height: usize, data: &mut [u8]) {
 
 fn full_mirror(width: usize, height: usize, data: &mut [u8]) {
     let total_pixels = width * height;
-    let pixels = unsafe { std::slice::from_raw_parts_mut(data.as_mut_ptr() as *mut u32, total_pixels) };
+    let pixels =
+        unsafe { std::slice::from_raw_parts_mut(data.as_mut_ptr() as *mut u32, total_pixels) };
 
     let half = total_pixels / 2;
     for i in 0..half {

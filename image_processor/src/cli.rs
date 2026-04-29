@@ -1,4 +1,7 @@
 use clap::Parser;
+use log::{debug, warn};
+use std::error::Error;
+use std::fs;
 use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
@@ -43,46 +46,51 @@ pub(crate) struct Cli {
 }
 
 impl Cli {
-    pub fn get_args() -> Self {
+    pub fn get_args() -> Result<Self, Box<dyn Error>> {
         let args = Self::parse();
 
         if !args.input.exists() {
-            eprintln!(
-                "Ошибка: входной файл не существует: {}",
-                args.input.display()
-            );
-            std::process::exit(1);
-        }
-        if !args.params.exists() {
-            eprintln!(
-                "Ошибка: файл параметров не существует: {}",
-                args.params.display()
-            );
-            std::process::exit(1);
-        }
-        if args.output.is_dir() {
-            eprintln!(
-                "Ошибка: выходной путь является директорией, а должен быть файлом: {}",
-                args.output.display()
-            );
-            std::process::exit(1);
-        }
-        if !args.plugin_path.exists() {
-            eprintln!(
-                "Ошибка: директория с плагинами не найдена: {}",
-                args.plugin_path.display()
-            );
-            std::process::exit(1);
-        }
-        if !args.plugin_path.is_dir() {
-            eprintln!(
-                "Ошибка: путь к плагину должен быть директорией: {}",
-                args.plugin_path.display()
-            );
-            std::process::exit(1);
+            return Err(format!("Входной файл не существует: {}", args.input.display()).into());
         }
 
-        println!("Полученные аргументы: {:#?}", args);
-        args
+        if !args.params.exists() {
+            return Err(format!("Файл параметров не существует: {}", args.params.display()).into());
+        }
+
+        if args.output.exists() && args.output.is_dir() {
+            return Err(format!(
+                "Выходной путь является директорией, а должен быть файлом: {}",
+                args.output.display()
+            )
+            .into());
+        }
+
+        if let Some(parent) = args.output.parent()
+            && !parent.exists()
+        {
+            warn!(
+                "Родительская директория не найдена, создаём: {}",
+                parent.display()
+            );
+            fs::create_dir_all(parent)?;
+        }
+
+        if !args.plugin_path.exists() {
+            return Err(format!(
+                "Директория с плагинами не найдена: {}",
+                args.plugin_path.display()
+            )
+            .into());
+        }
+        if !args.plugin_path.is_dir() {
+            return Err(format!(
+                "Путь к плагину должен быть директорией: {}",
+                args.plugin_path.display()
+            )
+            .into());
+        }
+
+        debug!("Полученные аргументы: {:#?}", args);
+        Ok(args)
     }
 }

@@ -1,17 +1,13 @@
-use core::ffi::{c_char};
-use std::ffi::CString;
+use core::ffi::c_char;
 use libloading::{Library, Symbol};
+use std::ffi::CString;
 use std::path::Path;
 
 const RGB_PIXEL_BYTES: u32 = 4;
 
 /// Тип функции плагина (C ABI)
-pub type ProcessImageFn = unsafe extern "C" fn(
-    width: u32,
-    height: u32,
-    rgba_data: *mut u8,
-    params: *const c_char,
-);
+pub type ProcessImageFn =
+    unsafe extern "C" fn(width: u32, height: u32, rgba_data: *mut u8, params: *const c_char);
 
 /// Интерфейс плагина: хранит указатель на функцию process_image.
 pub struct PluginInterface<'a> {
@@ -57,7 +53,12 @@ impl Plugin {
     ) -> Result<(), Box<dyn std::error::Error>> {
         let expected_len = (width * height * RGB_PIXEL_BYTES) as usize;
         if rgba_data.len() != expected_len {
-            return Err(format!("buffer size mismatch: expected {}, got {}", expected_len, rgba_data.len()).into());
+            return Err(format!(
+                "buffer size mismatch: expected {}, got {}",
+                expected_len,
+                rgba_data.len()
+            )
+            .into());
         }
         let iface = self.interface()?;
         let params_cstr = CString::new(params)?;
