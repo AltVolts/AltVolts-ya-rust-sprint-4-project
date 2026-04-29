@@ -1,6 +1,6 @@
 use clap::Parser;
+use image_plugin::error::ImgError;
 use log::{debug, warn};
-use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 
@@ -46,23 +46,19 @@ pub(crate) struct Cli {
 }
 
 impl Cli {
-    pub fn get_args() -> Result<Self, Box<dyn Error>> {
+    pub fn get_args() -> Result<Self, ImgError> {
         let args = Self::parse();
 
         if !args.input.exists() {
-            return Err(format!("Входной файл не существует: {}", args.input.display()).into());
+            return Err(ImgError::input_not_found(args.input));
         }
 
         if !args.params.exists() {
-            return Err(format!("Файл параметров не существует: {}", args.params.display()).into());
+            return Err(ImgError::params_not_found(args.params));
         }
 
         if args.output.exists() && args.output.is_dir() {
-            return Err(format!(
-                "Выходной путь является директорией, а должен быть файлом: {}",
-                args.output.display()
-            )
-            .into());
+            return Err(ImgError::output_is_directory(args.output));
         }
 
         if let Some(parent) = args.output.parent()
@@ -76,18 +72,10 @@ impl Cli {
         }
 
         if !args.plugin_path.exists() {
-            return Err(format!(
-                "Директория с плагинами не найдена: {}",
-                args.plugin_path.display()
-            )
-            .into());
+            return Err(ImgError::plugin_dir_not_found(args.plugin_path));
         }
         if !args.plugin_path.is_dir() {
-            return Err(format!(
-                "Путь к плагину должен быть директорией: {}",
-                args.plugin_path.display()
-            )
-            .into());
+            return Err(ImgError::plugin_dir_not_directory(args.plugin_path));
         }
 
         debug!("Полученные аргументы: {:#?}", args);

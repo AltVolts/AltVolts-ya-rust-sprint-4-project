@@ -513,7 +513,7 @@ dependencies = [
  "image",
  "libloading",
  "log",
- "serde_json",
+ "thiserror",
 ]
 
 [[package]]

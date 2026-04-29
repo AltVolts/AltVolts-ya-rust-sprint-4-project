@@ -2,11 +2,12 @@ use env_logger::{Builder, Env};
 use std::path::Path;
 
 use crate::cli::Cli;
+use image_plugin::error::ImgError;
 use image_plugin::{image_io, plugin_loader::Plugin};
 
 mod cli;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), ImgError> {
     Builder::from_env(Env::default().default_filter_or("info")).init();
     let cli = Cli::get_args()?;
 
@@ -22,7 +23,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn load_params(path: &Path) -> Result<String, Box<dyn std::error::Error>> {
-    let content = std::fs::read_to_string(path)?;
-    Ok(content)
+fn load_params(path: &Path) -> Result<String, ImgError> {
+    Ok(std::fs::read_to_string(path)?)
 }
