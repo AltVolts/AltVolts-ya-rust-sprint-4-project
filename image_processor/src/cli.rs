@@ -1,5 +1,6 @@
 use clap::Parser;
 use image_plugin::error::ImgError;
+use image_plugin::plugin_loader::plugin_filename;
 use log::{debug, warn};
 use std::fs;
 use std::path::PathBuf;
@@ -76,6 +77,12 @@ impl Cli {
         }
         if !args.plugin_path.is_dir() {
             return Err(ImgError::plugin_dir_not_directory(args.plugin_path));
+        }
+
+        let lib_filename = plugin_filename(&args.plugin);
+        let plugin_file = args.plugin_path.join(&lib_filename);
+        if !plugin_file.exists() {
+            return Err(ImgError::plugin_file_not_found(plugin_file));
         }
 
         debug!("Полученные аргументы: {:#?}", args);

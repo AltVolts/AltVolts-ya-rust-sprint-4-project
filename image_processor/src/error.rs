@@ -27,6 +27,9 @@ pub enum ImgError {
     #[error("Путь к плагинам не является директорией: {0}")]
     PluginDirNotDirectory(PathBuf),
 
+    #[error("Файл плагина не найден: {0}")]
+    PluginFileNotFound(PathBuf),
+
     #[error("Некорректный размер буфера изображения: ожидается {expected}, получено {actual}")]
     BufferSizeMismatch { expected: usize, actual: usize },
 
@@ -56,5 +59,9 @@ impl ImgError {
 
     pub fn plugin_dir_not_directory(path: impl Into<PathBuf>) -> Self {
         ImgError::PluginDirNotDirectory(path.into())
+    }
+
+    pub fn plugin_file_not_found(path: impl Into<PathBuf>) -> Self {
+        ImgError::PluginFileNotFound(path.into())
     }
 }

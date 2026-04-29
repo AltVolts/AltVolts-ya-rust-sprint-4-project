@@ -33,3 +33,4 @@ debug/
 *.dSYM/
 
 /blog-wasm/dist/
+/test_files/output/new_img.png

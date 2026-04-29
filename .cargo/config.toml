@@ -1,2 +1,4 @@
 [alias]
 img_proc = "run -p image_processor --"
+build_mirror = "build -p mirror_plugin --release"
+build_blur = "build -p blur_plugin --release"

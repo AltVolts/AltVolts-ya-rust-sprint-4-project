@@ -23,11 +23,7 @@ pub struct Plugin {
 impl Plugin {
     /// Загружает плагин по имени (без расширения) из указанной директории.
     pub fn new(name: &str, plugin_dir: &Path) -> Result<Self, ImgError> {
-        let lib_filename = match std::env::consts::OS {
-            "windows" => format!("{}.dll", name),
-            "macos" => format!("lib{}.dylib", name),
-            _ => format!("lib{}.so", name),
-        };
+        let lib_filename = plugin_filename(name);
         let lib_path = plugin_dir.join(lib_filename);
 
         // SAFETY: загрузка динамической библиотеки через libloading.
@@ -72,5 +68,13 @@ impl Plugin {
             (iface.process_image)(width, height, rgba_data.as_mut_ptr(), params_cstr.as_ptr());
         }
         Ok(())
+    }
+}
+
+pub fn plugin_filename(name: &str) -> String {
+    match std::env::consts::OS {
+        "windows" => format!("{}.dll", name),
+        "macos" => format!("lib{}.dylib", name),
+        _ => format!("lib{}.so", name),
     }
 }
