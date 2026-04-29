@@ -2,7 +2,7 @@ use env_logger::{Builder, Env};
 use std::path::{Path, PathBuf};
 
 use crate::cli::Cli;
-use image_plugin::{image_io, plugin::Plugin};
+use image_plugin::{image_io, plugin_loader::Plugin};
 
 mod cli;
 

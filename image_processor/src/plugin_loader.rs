@@ -47,6 +47,7 @@ impl Plugin {
         })
     }
 
+    /// Безопасная функция-обертка для вызова обработки изображения.
     pub fn process_image(
         &self,
         width: u32,
