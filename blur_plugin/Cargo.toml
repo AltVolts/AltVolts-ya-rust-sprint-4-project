@@ -4,9 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [lib]
-crate-type = ["lib", "cdylib"]
+crate-type = ["cdylib"]
 
 [dependencies]
-image_processor = { path = "../image_processor"}
 serde_json = {workspace = true}
 serde = {workspace = true}

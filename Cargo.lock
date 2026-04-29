@@ -197,7 +197,6 @@ dependencies = [
 name = "blur_plugin"
 version = "0.1.0"
 dependencies = [
- "image_processor",
  "serde",
  "serde_json",
 ]
@@ -665,7 +664,6 @@ dependencies = [
 name = "mirror_plugin"
 version = "0.1.0"
 dependencies = [
- "image_processor",
  "serde",
  "serde_json",
 ]
