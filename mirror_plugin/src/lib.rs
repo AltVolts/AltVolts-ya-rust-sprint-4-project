@@ -100,3 +100,83 @@ fn full_mirror(width: usize, height: usize, data: &mut [u8]) {
         pixels.swap(idx1, idx2);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Вспомогательная функция: создаёт тестовое RGBA-изображение 3x3,
+    /// где каждый пиксель имеет уникальное значение красного канала (0..8).
+    fn make_test_image() -> Vec<u8> {
+        let width = 3;
+        let height = 3;
+        let mut data = vec![0u8; width * height * RGB_PIXEL_BYTES];
+        for y in 0..height {
+            for x in 0..width {
+                let idx = (y * width + x) * RGB_PIXEL_BYTES;
+                let val = (y * width + x) as u8;
+                data[idx] = val; // R
+                data[idx + 1] = 0; // G
+                data[idx + 2] = 0; // B
+                data[idx + 3] = 255; // A
+            }
+        }
+        data
+    }
+
+    /// Ожидаемое состояние после горизонтального отражения:
+    /// порядок элементов в каждой строке меняется на обратный.
+    const HORIZONTAL_EXPECTED: [u8; 36] = [
+        2,0,0,255, 1,0,0,255, 0,0,0,255,
+        5,0,0,255, 4,0,0,255, 3,0,0,255,
+        8,0,0,255, 7,0,0,255, 6,0,0,255,
+    ];
+
+    #[test]
+    fn test_horizontal_mirror() {
+        let mut data = make_test_image();
+        horizontal_mirror(3, &mut data);
+        assert_eq!(data, HORIZONTAL_EXPECTED);
+    }
+
+    /// Аналогично, ожидаемый ответ для вертикального отражения.
+    const VERTICAL_EXPECTED: [u8; 36] = [
+        6,0,0,255, 7,0,0,255, 8,0,0,255,
+        3,0,0,255, 4,0,0,255, 5,0,0,255,
+        0,0,0,255, 1,0,0,255, 2,0,0,255,
+    ];
+    
+    #[test]
+    fn test_vertical_mirror() {
+        let mut data = make_test_image();
+        vertical_mirror(3, 3, &mut data);
+        assert_eq!(data, VERTICAL_EXPECTED);
+    }
+
+    /// Аналогично, ожидаемый ответ для полного отражения.
+    const FULL_MIRROR_EXPECTED: [u8; 36] = [
+        8,0,0,255, 7,0,0,255, 6,0,0,255,
+        5,0,0,255, 4,0,0,255, 3,0,0,255,
+        2,0,0,255, 1,0,0,255, 0,0,0,255,
+    ];
+
+    #[test]
+    fn test_full_mirror() {
+        let mut data = make_test_image();
+        full_mirror(3, 3, &mut data);
+        assert_eq!(data, FULL_MIRROR_EXPECTED);
+    }
+
+    /// Проверка, что изображение 1x1 корректно обрабатывается (ничего не делает).
+    #[test]
+    fn test_1x1_image() {
+        let mut data = vec![10, 20, 30, 40];
+        let orig = data.clone();
+        horizontal_mirror(1, &mut data);
+        assert_eq!(data, orig);
+        vertical_mirror(1, 1, &mut data);
+        assert_eq!(data, orig);
+        full_mirror(1, 1, &mut data);
+        assert_eq!(data, orig);
+    }
+}
