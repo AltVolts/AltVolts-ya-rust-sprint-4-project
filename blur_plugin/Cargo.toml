@@ -9,3 +9,6 @@ crate-type = ["cdylib"]
 [dependencies]
 serde_json = {workspace = true}
 serde = {workspace = true}
+
+[dev-dependencies]
+libloading = "0.8"
