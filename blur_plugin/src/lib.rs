@@ -143,7 +143,7 @@ mod tests {
         let original = data.clone();
         blur_pass(&mut data, 5, 5, 0);
         assert_eq!(data, original);
-    }   
+    }
 
     #[test]
     fn blur_solid_image_remains_solid() {
@@ -156,22 +156,27 @@ mod tests {
         let mut data = solid_image(5, 5, r, g, b, a);
         let expected = data.clone();
         blur_pass(&mut data, 5, 5, 2);
-        assert_eq!(data, expected, "Однородное изображение не должно измениться после blur");
+        assert_eq!(
+            data, expected,
+            "Однородное изображение не должно измениться после blur"
+        );
     }
 
-    
     #[test]
     fn blur_changes_data() {
         let mut data = solid_image(5, 5, 0, 0, 0, 255);
         // Ставим яркий пиксель в центр
         let center_idx = (2 * 5 + 2) * RGB_PIXEL_BYTES;
-        data[center_idx] = 255;   // R
+        data[center_idx] = 255; // R
         data[center_idx + 1] = 255;
         data[center_idx + 2] = 255;
         let original = data.clone();
         blur_pass(&mut data, 5, 5, 1);
         // После размытия яркого центра данные должны измениться
-        assert_ne!(data, original, "Изображение с единственным ярким пикселем должно размыться");
+        assert_ne!(
+            data, original,
+            "Изображение с единственным ярким пикселем должно размыться"
+        );
     }
 
     #[test]

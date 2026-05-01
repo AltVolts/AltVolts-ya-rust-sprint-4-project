@@ -2,15 +2,23 @@ use libloading::{Library, Symbol};
 use std::ffi::CString;
 use std::path::PathBuf;
 
-type ProcessImageFn =
-    unsafe extern "C" fn(width: u32, height: u32, rgba_data: *mut u8, params: *const std::ffi::c_char);
+type ProcessImageFn = unsafe extern "C" fn(
+    width: u32,
+    height: u32,
+    rgba_data: *mut u8,
+    params: *const std::ffi::c_char,
+);
 
 /// Возвращает путь к динамической библиотеке
 fn plugin_lib_path() -> PathBuf {
     let exe = std::env::current_exe().expect("Cannot get test executable path");
-    let deps_dir = exe.parent().expect("Executable must be in a directory (deps)");
+    let deps_dir = exe
+        .parent()
+        .expect("Executable must be in a directory (deps)");
     // deps_dir — target/debug/deps (или target/release/deps)
-    let target_profile_dir = deps_dir.parent().expect("deps/ must have a parent (target/<profile>)");
+    let target_profile_dir = deps_dir
+        .parent()
+        .expect("deps/ must have a parent (target/<profile>)");
 
     let lib_name = format!(
         "{}mirror_plugin{}",
@@ -30,13 +38,17 @@ fn load_plugin() -> Symbol<'static, ProcessImageFn> {
     );
     let lib = unsafe { Library::new(&lib_path).expect("Failed to load mirror_plugin") };
     let lib = Box::leak(Box::new(lib));
-    unsafe { lib.get(b"process_image\0").expect("Symbol process_image not found") }
+    unsafe {
+        lib.get(b"process_image\0")
+            .expect("Symbol process_image not found")
+    }
 }
 
 /// Создаёт тестовое RGBA-изображение 2x2.
 /// Пиксели (R, G, B, A):
 /// (1,0,0,255), (2,0,0,255)
 /// (3,0,0,255), (4,0,0,255)
+#[rustfmt::skip]
 fn test_image_2x2() -> Vec<u8> {
     vec![
         1, 0, 0, 255,   // пиксель (0,0)
