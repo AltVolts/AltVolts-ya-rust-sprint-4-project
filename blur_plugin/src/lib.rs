@@ -110,7 +110,7 @@ fn blur_pass(data: &mut [u8], width: usize, height: usize, radius: u32) {
                 }
             }
 
-            // --- 4. Нормируем и записываем результат ---К
+            // --- 4. Нормируем и записываем результат ---
             let dst_offset = (y * width + x) * RGB_PIXEL_BYTES;
             data[dst_offset] = (sum_r / weight_sum).round() as u8;
             data[dst_offset + 1] = (sum_g / weight_sum).round() as u8;
