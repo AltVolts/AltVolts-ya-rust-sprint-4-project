@@ -119,3 +119,75 @@ fn blur_pass(data: &mut [u8], width: usize, height: usize, radius: u32) {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Создаёт однородное RGBA-изображение width×height с заданным цветом.
+    fn solid_image(width: usize, height: usize, r: u8, g: u8, b: u8, a: u8) -> Vec<u8> {
+        let size = width * height * RGB_PIXEL_BYTES;
+        let mut data = Vec::with_capacity(size);
+        for _ in 0..width * height {
+            data.push(r);
+            data.push(g);
+            data.push(b);
+            data.push(a);
+        }
+        data
+    }
+
+    #[test]
+    fn blur_radius_zero_does_nothing() {
+        let mut data = solid_image(5, 5, 100, 150, 200, 255);
+        let original = data.clone();
+        blur_pass(&mut data, 5, 5, 0);
+        assert_eq!(data, original);
+    }   
+
+    #[test]
+    fn blur_solid_image_remains_solid() {
+        // При размытии однородного изображения цвет не должен меняться
+        // (потому что все соседи одинаковые).
+        let r = 128u8;
+        let g = 64u8;
+        let b = 192u8;
+        let a = 255u8;
+        let mut data = solid_image(5, 5, r, g, b, a);
+        let expected = data.clone();
+        blur_pass(&mut data, 5, 5, 2);
+        assert_eq!(data, expected, "Однородное изображение не должно измениться после blur");
+    }
+
+    
+    #[test]
+    fn blur_changes_data() {
+        let mut data = solid_image(5, 5, 0, 0, 0, 255);
+        // Ставим яркий пиксель в центр
+        let center_idx = (2 * 5 + 2) * RGB_PIXEL_BYTES;
+        data[center_idx] = 255;   // R
+        data[center_idx + 1] = 255;
+        data[center_idx + 2] = 255;
+        let original = data.clone();
+        blur_pass(&mut data, 5, 5, 1);
+        // После размытия яркого центра данные должны измениться
+        assert_ne!(data, original, "Изображение с единственным ярким пикселем должно размыться");
+    }
+
+    #[test]
+    fn blur_does_not_panic_on_large_radius() {
+        // Проверяем, что размытие не паникует, даже если радиус больше размеров изображения.
+        let mut data = solid_image(3, 3, 50, 100, 150, 255);
+        blur_pass(&mut data, 3, 3, 10); // радиус 10 при 3x3 – не должен паниковать
+        assert_eq!(data.len(), 3 * 3 * RGB_PIXEL_BYTES);
+    }
+
+    #[test]
+    fn blur_one_pixel_image() {
+        let mut data = solid_image(1, 1, 42, 43, 44, 255);
+        let original = data.clone();
+        blur_pass(&mut data, 1, 1, 5); // радиус 5 на 1x1
+        // Одно пиксельное изображение не должно меняться при усреднении с самим собой
+        assert_eq!(data, original);
+    }
+}
